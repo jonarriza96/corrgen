@@ -11,13 +11,13 @@ def poly_basis(xi, k, basis, d):
     if basis == "n":  # nominal
         return xi**k
     elif basis == "c":  # chebyshev
-        return np.cos(k * np.arccos(xi))
+        return np.cos(k * np.arccos(2 * xi - 1))
     elif basis == "b":  # bernstein
         return np.math.comb(d, k) * xi**k * (1 - xi) ** (d - k)
 
 
 def polynomial(xi, coeffs, degree):
-    p_basis = "b"
+    p_basis = "c"
     a = 0
     b = 0
     c = 0
