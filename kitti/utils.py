@@ -79,11 +79,12 @@ def SDP_3D(poly_deg, occ, ellipse_axis_lims):
 
         # constraints += [a_i >= c_i, b_i >= c_i]
         eps = 1e-1
-        min_det = eig_min**2
+        min_det = (4 / (10) ** 2) * (4 / (5) ** 2)  # eig_min**2
+        c_min = 1 / 2 * (min_det / eps - eps)
         constraints += [
             a_i >= c_i + eps,
             b_i >= c_i + eps,
-            c_i >= 1 / 2 * (min_det / eps - eps),
+            c_i >= c_min,
         ]
 
     # 2- loop all occupancy points
