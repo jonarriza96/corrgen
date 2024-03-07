@@ -33,11 +33,11 @@ def polynomial(xi, coeffs, degree):
     return a, b, c, d, e
 
 
-def SDP_3D(poly_deg, occ, ellipse_axis_lims):
+def NLP(poly_deg, occ, ellipse_axis_lims, eps, LP):
 
     eig_min = 4 / (ellipse_axis_lims[0] ** 2)
     eig_max = 4 / (ellipse_axis_lims[1] ** 2)
-    n_sweep = 1000
+    n_sweep = 100
 
     # define variables X = [[a c], [c b]]
     a = cp.Variable(poly_deg + 1)
@@ -73,19 +73,26 @@ def SDP_3D(poly_deg, occ, ellipse_axis_lims):
         Pi = cp.bmat([[a_i, c_i], [c_i, b_i]])
 
         # constraints
-        # constraints += [Pi >> 0]
-        # constraints += [(Pi - eig_min * np.eye(2)) >> 0]
-        # constraints += [(-Pi + eig_max * np.eye(2)) >> 0]
+        if not LP:
+            constraints += [Pi >> 0]
+            constraints += [(Pi - eig_min * np.eye(2)) >> 0]
+            # constraints += [(-Pi + eig_max * np.eye(2)) >> 0]
+        else:
+            min_det = (4 / (ellipse_axis_lims[0]) ** 2) * (
+                4 / (ellipse_axis_lims[0] / 2) ** 2
+            )
+            c_min = 1 / 2 * (min_det / eps - eps)
+            constraints += [
+                a_i >= c_i + eps,
+                b_i >= c_i + eps,
+                c_i >= c_min,
+            ]
+            # constraints += [a_i >= c_i, b_i >= c_i]
 
-        # constraints += [a_i >= c_i, b_i >= c_i]
-        eps = 1e-1
-        min_det = (4 / (10) ** 2) * (4 / (5) ** 2)  # eig_min**2
-        c_min = 1 / 2 * (min_det / eps - eps)
-        constraints += [
-            a_i >= c_i + eps,
-            b_i >= c_i + eps,
-            c_i >= c_min,
-        ]
+    if not LP:
+        print("CORRGEN --> Ellipse bounds [eig_min]:", eig_min)
+    else:
+        print("CORRGEN --> Ellipse bounds [eps, c_min]:", eps, c_min)
 
     # 2- loop all occupancy points
     for i in range(occ.shape[0]):
@@ -224,13 +231,22 @@ def add_world_boundaries(occ_cl, planar):
     return occ_cl
 
 
-def add_roof_floor(occ_cl, kitti_zmax=1.25):
+def add_roof_floor(ref_path, occ_cl, kitti_zmax, kitti_zmin):
 
-    x_min = np.min(occ_cl[:, 0])
-    x_max = np.max(occ_cl[:, 0])
+    cl_x_min = np.min(occ_cl[:, 0])
+    cl_x_max = np.max(occ_cl[:, 0])
+    cl_y_min = np.min(occ_cl[:, 1])
+    cl_y_max = np.max(occ_cl[:, 1])
 
-    y_min = np.min(occ_cl[:, 1])
-    y_max = np.max(occ_cl[:, 1])
+    rp_x_min = np.min(ref_path[:, 0])
+    rp_x_max = np.max(ref_path[:, 0])
+    rp_y_min = np.min(ref_path[:, 1])
+    rp_y_max = np.max(ref_path[:, 1])
+
+    x_min = min(cl_x_min, rp_x_min)
+    x_max = max(cl_x_max, rp_x_max)
+    y_min = min(cl_y_min, rp_y_min)
+    y_max = max(cl_y_max, rp_y_max)
 
     n_side = 30
     X, Y = np.meshgrid(
@@ -247,7 +263,7 @@ def add_roof_floor(occ_cl, kitti_zmax=1.25):
         [
             X.flatten(),
             Y.flatten(),
-            -1.75 * np.ones((n_side, n_side)).flatten(),
+            kitti_zmin * np.ones((n_side, n_side)).flatten(),
         ]
     ).T
     occ_cl = np.vstack([occ_cl, roof, floor])
@@ -330,3 +346,56 @@ def get_ellipse_points(width, height, angle, theta):
     pt = R_ellipse @ rot
 
     return pt
+
+
+def get_cage(ppr):
+    l = 10  # side length of the cage
+    h = 4  # heigh of the cage
+    n_sweep_cage = 30  # how many cages to sweep along reference path
+    n_topbottom = 10  # how many points in the top and bottom of the cage per sweep line
+    n_sides = int(
+        h / l * n_topbottom
+    )  # how many points in the sides of the cage per sweep line
+    xi_wrap = np.linspace(0, 1, n_sweep_cage)
+    occ_cage = []
+    for i in range(xi_wrap.shape[0]):
+        ind_i = np.argmin(np.abs(ppr.parametric_path["xi"] - xi_wrap[i]))
+        p_i = ppr.parametric_path["p"][ind_i]
+        e1_i = ppr.parametric_path["erf"][ind_i, :, 0]
+        i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
+        i_vertical = np.cross(e1_i, np.array([1, 0, 0]))
+
+        i_horizontal = i_horizontal / np.linalg.norm(i_horizontal)
+        i_vertical = i_vertical / np.linalg.norm(i_vertical)
+
+        # top and bottom
+
+        occ_cage += [
+            p_i[:, None]
+            + (i_vertical[:, None] * -h / 2)
+            + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
+        ]
+
+        occ_cage += [
+            p_i[:, None]
+            + (i_vertical[:, None] * h / 2)
+            + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
+        ]
+
+        # sides
+
+        occ_cage += [
+            p_i[:, None]
+            + (i_horizontal[:, None] * l / 2)
+            + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
+        ]
+
+        occ_cage += [
+            p_i[:, None]
+            + (i_horizontal[:, None] * -l / 2)
+            + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
+        ]
+    occ_cage = np.hstack(occ_cage).T
+    print("CORRGEN--> Wrapper points: ", occ_cage.shape[0])
+
+    return occ_cage
