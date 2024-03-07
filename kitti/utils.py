@@ -75,7 +75,7 @@ def NLP(poly_deg, occ, ellipse_axis_lims, eps, LP):
         # constraints
         if not LP:
             constraints += [Pi >> 0]
-            constraints += [(Pi - eig_min * np.eye(2)) >> 0]
+            # constraints += [(Pi - eig_min * np.eye(2)) >> 0]
             # constraints += [(-Pi + eig_max * np.eye(2)) >> 0]
         else:
             min_det = (4 / (ellipse_axis_lims[0]) ** 2) * (
@@ -90,7 +90,8 @@ def NLP(poly_deg, occ, ellipse_axis_lims, eps, LP):
             # constraints += [a_i >= c_i, b_i >= c_i]
 
     if not LP:
-        print("CORRGEN --> Ellipse bounds [eig_min]:", eig_min)
+        # print("CORRGEN --> Ellipse bounds [eig_min]:", eig_min)
+        print("CORRGEN --> NO ellipse bounds!")
     else:
         print("CORRGEN --> Ellipse bounds [eps, c_min]:", eps, c_min)
 
@@ -187,7 +188,7 @@ def add_world_boundaries(occ_cl, planar):
     y_max = max(occ_cl[:, 1])  # 11
     z_min = min(occ_cl[:, 2])  # 0
     z_max = max(occ_cl[:, 2])  # 6
-    n_side = 100
+    n_side = 50
 
     z_side = np.linspace(z_min, z_max, n_side)
     z_side = np.repeat(z_side, n_side)
@@ -351,11 +352,14 @@ def get_ellipse_points(width, height, angle, theta):
 def get_cage(ppr):
     l = 10  # side length of the cage
     h = 4  # heigh of the cage
-    n_sweep_cage = 30  # how many cages to sweep along reference path
-    n_topbottom = 10  # how many points in the top and bottom of the cage per sweep line
-    n_sides = int(
-        h / l * n_topbottom
-    )  # how many points in the sides of the cage per sweep line
+    n_sweep_cage = 100  # how many cages to sweep along reference path
+    n_topbottom = (
+        5  # 6  # how many points in the top and bottom of the cage per sweep line
+    )
+    n_sides = 3
+    # int(
+    #     h / l * n_topbottom
+    # )  # how many points in the sides of the cage per sweep line
     xi_wrap = np.linspace(0, 1, n_sweep_cage)
     occ_cage = []
     for i in range(xi_wrap.shape[0]):
