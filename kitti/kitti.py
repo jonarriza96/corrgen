@@ -129,9 +129,9 @@ a, b, c, d, e = variables
 if not LP:
     prob.solve(solver=cp.CLARABEL, verbose=True)
 else:
-    prob.solve(solver=cp.GUROBI, verbose=True)
+    # prob.solve(solver=cp.GUROBI, verbose=True)
     # prob.solve(solver=cp.OSQP, verbose=True)
-    # prob.solve(solver=cp.PROXQP, backend="dense", verbose=True)
+    prob.solve(solver=cp.PROXQP, backend="dense", verbose=True)
 coeffs = {
     "a": a.value,
     "b": b.value,
