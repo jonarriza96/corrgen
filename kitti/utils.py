@@ -78,22 +78,23 @@ def NLP(poly_deg, occ, ellipse_axis_lims, eps, LP):
             # constraints += [(Pi - eig_min * np.eye(2)) >> 0]
             # constraints += [(-Pi + eig_max * np.eye(2)) >> 0]
         else:
-            min_det = (4 / (ellipse_axis_lims[0]) ** 2) * (
-                4 / (ellipse_axis_lims[0] / 2) ** 2
-            )
-            c_min = 1 / 2 * (min_det / eps - eps)
-            constraints += [
-                a_i >= c_i + eps,
-                b_i >= c_i + eps,
-                c_i >= c_min,
-            ]
-            # constraints += [a_i >= c_i, b_i >= c_i]
+            # min_det = (4 / (ellipse_axis_lims[0]) ** 2) * (
+            #     4 / (ellipse_axis_lims[0] / 2) ** 2
+            # )
+            # c_min = 1 / 2 * (min_det / eps - eps)
+            # constraints += [
+            #     a_i >= c_i + eps,
+            #     b_i >= c_i + eps,
+            #     c_i >= c_min,
+            # ]
+            constraints += [a_i >= c_i, b_i >= c_i]
 
     if not LP:
         # print("CORRGEN --> Ellipse bounds [eig_min]:", eig_min)
         print("CORRGEN --> NO ellipse bounds!")
     else:
-        print("CORRGEN --> Ellipse bounds [eps, c_min]:", eps, c_min)
+        # print("CORRGEN --> Ellipse bounds [eps, c_min]:", eps, c_min)
+        print("CORRGEN --> NO ellipse bounds!")
 
     # 2- loop all occupancy points
     for i in range(occ.shape[0]):
@@ -356,7 +357,7 @@ def get_cage(ppr):
     n_topbottom = (
         5  # 6  # how many points in the top and bottom of the cage per sweep line
     )
-    n_sides = 3
+    n_sides = 5
     # int(
     #     h / l * n_topbottom
     # )  # how many points in the sides of the cage per sweep line
@@ -399,6 +400,15 @@ def get_cage(ppr):
             + (i_horizontal[:, None] * -l / 2)
             + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
         ]
+
+        if i == 0 or i == xi_wrap.shape[0] - 1:
+            for hh in np.linspace(-h / 2, h / 2, 4):
+                occ_cage += [
+                    p_i[:, None]
+                    + (i_vertical[:, None] * hh)
+                    + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
+                ]
+
     occ_cage = np.hstack(occ_cage).T
     print("CORRGEN--> Wrapper points: ", occ_cage.shape[0])
 
