@@ -155,7 +155,7 @@ def project_cloud_to_parametric_path(
     d_tr = np.linalg.norm(occ_erf[:, 1:], axis=1)
     min_d_tr = np.min(d_tr)
     max_d_tr = np.max(d_tr)
-    print("CORRGEN --> Transverse distances [min, max]:", min_d_tr, max_d_tr)
+    # print("CORRGEN --> Transverse distances [min, max]:", min_d_tr, max_d_tr)
 
     # safety check
     if safety_check:
@@ -354,7 +354,7 @@ def get_ellipse_points(width, height, angle, theta):
     return pt
 
 
-def get_cage(ppr):
+def get_cage(ppr, covers):
     l = 10  # side length of the cage
     h = 4  # heigh of the cage
     n_topbottom = (
@@ -380,23 +380,26 @@ def get_cage(ppr):
         i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
 
         horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal
-        horizontal_vec = horizontal_vecs[np.argmin(np.dot(e1_i, horizontal_vecs.T))]
+        horizontal_vec = horizontal_vecs[
+            1
+        ]  # horizontal_vecs[np.argmin(np.dot(e1_i, horizontal_vecs.T))]
         i_vertical = np.cross(e1_i, horizontal_vec)
 
         i_horizontal = i_horizontal / np.linalg.norm(i_horizontal)
         i_vertical = i_vertical / np.linalg.norm(i_vertical)
 
+        h_min = -1
+        h_max = h_min + h
         # top and bottom
-
         occ_cage += [
             p_i[:, None]
-            + (i_vertical[:, None] * -h / 2)
+            + (i_vertical[:, None] * h_min)
             + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
         ]
 
         occ_cage += [
             p_i[:, None]
-            + (i_vertical[:, None] * h / 2)
+            + (i_vertical[:, None] * h_max)
             + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
         ]
 
@@ -405,22 +408,26 @@ def get_cage(ppr):
         occ_cage += [
             p_i[:, None]
             + (i_horizontal[:, None] * l / 2)
-            + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
+            + (i_vertical[:, None] * np.linspace(h_min, h_max, n_sides))
         ]
 
         occ_cage += [
             p_i[:, None]
             + (i_horizontal[:, None] * -l / 2)
-            + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
+            + (i_vertical[:, None] * np.linspace(h_min, h_max, n_sides))
         ]
 
-        # if i == 0 or i == xi_wrap.shape[0] - 1:
-        #     for hh in np.linspace(-h / 2, h / 2, 4):
-        #         occ_cage += [
-        #             p_i[:, None]
-        #             + (i_vertical[:, None] * hh)
-        #             + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
-        #         ]
+        if covers:
+            if i == 0 or i == xi_wrap.shape[0] - 1:
+                for hh in np.linspace(h_min, h_max, 4):
+                    occ_cage += [
+                        p_i[:, None]
+                        + (i_vertical[:, None] * hh)
+                        + (
+                            i_horizontal[:, None]
+                            * np.linspace(-l / 2, l / 2, n_topbottom)
+                        )
+                    ]
 
     occ_cage = np.hstack(occ_cage).T
     print("CORRGEN--> Wrapper points: ", occ_cage.shape[0])

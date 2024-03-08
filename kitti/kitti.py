@@ -103,7 +103,7 @@ ind = occ_cl[:, 2] > -1.5
 occ_cl = occ_cl[ind]
 
 # add cage
-occ_cage = get_cage(ppr=ppr)
+occ_cage = get_cage(ppr=ppr, covers=not corrgen)
 occ_cl_no_cage = occ_cl.copy()
 occ_cl = np.vstack([occ_cl, occ_cage])
 # occ_cl = occ_cage.copy()
@@ -129,6 +129,7 @@ if decomp:
     occ_cl_decomp = occ_cl.copy()  # add_world_boundaries(occ_cl, planar=False)
     ind_dc = np.linspace(0, ppr.parametric_path["p"].shape[0] - 1, n_decomp, dtype=int)
     path_decomp = ppr.parametric_path["p"][ind_dc]
+    # path_decomp[:, 2] = 0
     t0_dc = time.time()
     A_hs, b_hs = pdc.convex_decomposition_3D(occ_cl_decomp, path_decomp, box)
     t1_dc = time.time()
@@ -164,7 +165,7 @@ if corrgen:
     }
 
     print("CORRGEN --> OCP status:", prob.status)
-    print("CORRGEN --> OCP solver time:", 1000 * prob.solver_stats.solve_time, "ms")
+    print("CORRGEN --> OCP solver time:", 1000 * prob._solve_time, "ms")
 
     # ----------------------------- evaluate corridor ---------------------------- #
     n_angles = 18
@@ -343,7 +344,7 @@ if save:
                     "ellipse_pts": ellipse_pts,
                     "ellipse_pts_world": ellipse_pts_world,
                     "corridor_volume": parametric_volume,
-                    "solve_time": prob.solver_stats.solve_time,
+                    "solve_time": prob._solve_time,
                 },
                 f,
             )
