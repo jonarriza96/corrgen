@@ -9,8 +9,8 @@ import pickle
 
 
 decomp_path = "/home/jonarriza96/corrgen_v2/kitti/data/case2/decomp/10.pkl"
-corrgen_path1 = "/home/jonarriza96/corrgen_v2/kitti/data/case2/corrgen/24_SDP.pkl"
-corrgen_path2 = "/home/jonarriza96/corrgen_v2/kitti/data/case3/corrgen/24_SDP.pkl"
+corrgen_path1 = "/home/jonarriza96/corrgen_v2/kitti/data/case2/corrgen/24_LP.pkl"
+corrgen_path2 = "/home/jonarriza96/corrgen_v2/kitti/data/case3/corrgen/24_LP.pkl"
 
 print("Importing data...")
 # with open(decomp_path, "rb") as f:
