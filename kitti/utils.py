@@ -74,6 +74,10 @@ def NLP(poly_deg, occ, ellipse_axis_lims, eps, LP):
 
         # constraints
         if not LP:
+            # if i == 0:
+            #     constraints += [(Pi - eig_min * np.eye(2)) >> 0]
+            #     constraints += [d_i == 0, e_i == 0]
+            # else:
             constraints += [Pi >> 0]
             # constraints += [(Pi - eig_min * np.eye(2)) >> 0]
             # constraints += [(-Pi + eig_max * np.eye(2)) >> 0]
@@ -353,7 +357,6 @@ def get_ellipse_points(width, height, angle, theta):
 def get_cage(ppr):
     l = 10  # side length of the cage
     h = 4  # heigh of the cage
-    n_sweep_cage = 100  # how many cages to sweep along reference path
     n_topbottom = (
         5  # 6  # how many points in the top and bottom of the cage per sweep line
     )
@@ -361,14 +364,24 @@ def get_cage(ppr):
     # int(
     #     h / l * n_topbottom
     # )  # how many points in the sides of the cage per sweep line
-    xi_wrap = np.linspace(0, 1, n_sweep_cage)
+
+    # n_sweep_cage = 100  # how many cages to sweep along reference path
+    # xi_wrap = np.linspace(0, 1, n_sweep_cage)
+    xi_wrap_init = np.linspace(0, 0.1, 10)
+    xi_wrap_mid = np.linspace(0.1, 0.9, 30)
+    xi_wrap_end = np.linspace(0.9, 1, 10)
+    xi_wrap = np.hstack([xi_wrap_init, xi_wrap_mid, xi_wrap_end])
+
     occ_cage = []
     for i in range(xi_wrap.shape[0]):
         ind_i = np.argmin(np.abs(ppr.parametric_path["xi"] - xi_wrap[i]))
         p_i = ppr.parametric_path["p"][ind_i]
         e1_i = ppr.parametric_path["erf"][ind_i, :, 0]
         i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
-        i_vertical = np.cross(e1_i, np.array([1, 0, 0]))
+
+        horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal
+        horizontal_vec = horizontal_vecs[np.argmin(np.dot(e1_i, horizontal_vecs.T))]
+        i_vertical = np.cross(e1_i, horizontal_vec)
 
         i_horizontal = i_horizontal / np.linalg.norm(i_horizontal)
         i_vertical = i_vertical / np.linalg.norm(i_vertical)
@@ -401,13 +414,13 @@ def get_cage(ppr):
             + (i_vertical[:, None] * np.linspace(-h / 2, h / 2, n_sides))
         ]
 
-        if i == 0 or i == xi_wrap.shape[0] - 1:
-            for hh in np.linspace(-h / 2, h / 2, 4):
-                occ_cage += [
-                    p_i[:, None]
-                    + (i_vertical[:, None] * hh)
-                    + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
-                ]
+        # if i == 0 or i == xi_wrap.shape[0] - 1:
+        #     for hh in np.linspace(-h / 2, h / 2, 4):
+        #         occ_cage += [
+        #             p_i[:, None]
+        #             + (i_vertical[:, None] * hh)
+        #             + (i_horizontal[:, None] * np.linspace(-l / 2, l / 2, n_topbottom))
+        #         ]
 
     occ_cage = np.hstack(occ_cage).T
     print("CORRGEN--> Wrapper points: ", occ_cage.shape[0])

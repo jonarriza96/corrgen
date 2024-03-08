@@ -27,42 +27,56 @@ from utils import (
 # ---------------------------------------------------------------------------- #
 #                                  User inputs                                 #
 # ---------------------------------------------------------------------------- #
-# parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser()
 
-# parser.add_argument(
-#     "--n",
-#     type=int,
-#     default=6,
-#     help="Polynomial degree",
-# )
-# parser.add_argument(
-#     "--nlp",
-#     type=str,
-#     default="sdp",
-#     help="sdp (semidefinite program) or lp (linear program)",
-# )
-# parser.add_argument(
-#     "--no_visualization",
-#     action="store_true",
-#     help="Does not show data and animation",
-# )
+parser.add_argument(
+    "--n_corrgen",
+    type=int,
+    default=-1,
+    help="Polynomial degree for corrgen",
+)
+parser.add_argument(
+    "--n_decomp",
+    type=int,
+    default=-1,
+    help="Number of polygons for decomp",
+)
+parser.add_argument(
+    "--case",
+    type=int,
+    default=2,
+    help="Case study [2 or 3]",
+)
+parser.add_argument(
+    "--lp",
+    action="store_true",
+    help="Runs LP instead of SDP",
+)
+parser.add_argument(
+    "--no_visualization",
+    action="store_true",
+    help="Does not show data and animation",
+)
+parser.add_argument(
+    "--save",
+    action="store_true",
+    help="Save data",
+)
+args = parser.parse_args()
 
-# args = parser.parse_args()
+n_corrgen = args.n_corrgen
+n_decomp = args.n_decomp
+decomp = False if n_decomp == -1 else True
+corrgen = False if n_corrgen == -1 else True
+poly_deg = args.n_corrgen
+LP = args.lp
+visualize = not args.no_visualization
+save = args.save
 
-
-corrgen = True
-decomp = True
-poly_deg = 24  # args.n
-# if args.nlp == "sdp":
-#     LP = False
-# elif args.nlp == "lp":
-#     LP = True
-LP = False
-ellipse_axis_max = 20  # SDP and LP
-ellipse_axis_min = 0.5  # SDP and LP
-eps = 1e-1  # LP
-visualize = True  # not args.no_visualization
-file_name = "case2.pkl"
+file_name = "case" + str(args.case)
+ellipse_axis_max = 20  # SDP and LP ###NOT USED###
+ellipse_axis_min = 0.5  # SDP and LP ###NOT USED###
+eps = 1e-1  # LP ###NOT USED###
 
 # ---------------------------------------------------------------------------- #
 #                               Import case-study                              #
@@ -71,7 +85,7 @@ file_name = "case2.pkl"
 # ------------------------------- Import world ------------------------------- #
 print("Importing data...")
 path = "/home/jonarriza96/corrgen/examples/experiments/data/kitti/"
-with open(path + file_name, "rb") as f:
+with open(path + file_name + ".pkl", "rb") as f:
     data = pickle.load(f)
     world = data["world"]
     occ_clean = data["occ_sensor_clean"]
@@ -110,11 +124,10 @@ occ_cl = occ_cl[ind_in]
 # ---------------------------------------------------------------------------- #
 #                             Convex decomposition                             #
 # ---------------------------------------------------------------------------- #
-n_polys = 10
 if decomp:
     box = np.array([[10, 10, 10]])
     occ_cl_decomp = occ_cl.copy()  # add_world_boundaries(occ_cl, planar=False)
-    ind_dc = np.linspace(0, ppr.parametric_path["p"].shape[0] - 1, n_polys, dtype=int)
+    ind_dc = np.linspace(0, ppr.parametric_path["p"].shape[0] - 1, n_decomp, dtype=int)
     path_decomp = ppr.parametric_path["p"][ind_dc]
     t0_dc = time.time()
     A_hs, b_hs = pdc.convex_decomposition_3D(occ_cl_decomp, path_decomp, box)
@@ -157,7 +170,7 @@ if corrgen:
     n_angles = 18
 
     n_eval = ppr.parametric_path["p"].shape[0]  # 100
-    xi_eval = np.linspace(0, 0.99, n_eval)
+    xi_eval = np.linspace(0, 1, n_eval)
     P_eval = np.zeros((n_eval, 2, 2))
     pp_eval = np.zeros((n_eval, 2))
     ellipse_params = np.zeros((n_eval, 5))
@@ -184,8 +197,9 @@ if corrgen:
                 theta=angles[j],  # + angle,
             )
 
-            gamma = ppr.parametric_path["p"][i]
-            erf = ppr.parametric_path["erf"][i]
+            ind = np.argmin(np.abs(ppr.parametric_path["xi"] - xi_eval[i]))
+            gamma = ppr.parametric_path["p"][ind]
+            erf = ppr.parametric_path["erf"][ind]
 
             w = ellipse_pts[i, j, :] + ellipse_params[i, -2:]
             ellipse_pts_world[i, j, :] = gamma + w[0] * erf[:, 1] + w[1] * erf[:, 2]
@@ -299,3 +313,55 @@ if visualize:
     axis_equal(X=pts_map[:, 0], Y=pts_map[:, 1], Z=pts_map[:, 2], ax=plt.gca())
 
     plt.show()
+
+# ---------------------------------------------------------------------------- #
+#                                     Save                                     #
+# ---------------------------------------------------------------------------- #
+
+if save:
+    data_path = "/home/jonarriza96/corrgen_v2/kitti/data/"
+
+    print("Saving data...")
+    if corrgen:
+        corrgen_path = data_path + file_name + "/corrgen/" + str(poly_deg)
+        if LP:
+            corrgen_path += "_LP"
+        else:
+            corrgen_path += "_SDP"
+        with open(corrgen_path + ".pkl", "wb") as f:
+            pickle.dump(
+                {
+                    "occ_cl": occ_cl,
+                    "occ_cl_no_cage": occ_cl_no_cage,
+                    "occ_cage": occ_cage,
+                    "occ_clean": occ_clean,
+                    "occ_erf": occ_erf,
+                    "path": path,
+                    "ppr": ppr,
+                    "coeffs": coeffs,
+                    "ellipse_params": ellipse_params,
+                    "ellipse_pts": ellipse_pts,
+                    "ellipse_pts_world": ellipse_pts_world,
+                    "corridor_volume": parametric_volume,
+                    "solve_time": prob.solver_stats.solve_time,
+                },
+                f,
+            )
+    if decomp:
+        decomp_path = data_path + file_name + "/decomp/" + str(n_decomp) + ".pkl"
+        with open(decomp_path, "wb") as f:
+            pickle.dump(
+                {
+                    "occ_cl": occ_cl,
+                    "occ_cl_no_cage": occ_cl_no_cage,
+                    "occ_cage": occ_cage,
+                    "occ_clean": occ_clean,
+                    "occ_erf": occ_erf,
+                    "path": path,
+                    "ppr": ppr,
+                    "A_hs": A_hs,
+                    "b_hs": b_hs,
+                },
+                f,
+            )
+    print("Done.")
