@@ -13,28 +13,13 @@ import pickle
 
 save_path = "/home/jonarriza96/corrgen_v2/kitti/figures/figures/"
 
-decomp_path = "/home/jonarriza96/corrgen_v2/kitti/data/case2/decomp/8.pkl"
-corrgen_path = "/home/jonarriza96/corrgen_v2/kitti/data/case2/corrgen/24_LP.pkl"
+decomp_path = "/home/jonarriza96/corrgen_v2/kitti/data/case2/decomp/6.pkl"
+corrgen_path = "/home/jonarriza96/corrgen_v2/kitti/data/case2/corrgen/16_LP.pkl"
 
-print("Importing data...")
-with open(decomp_path, "rb") as f:
-    data = pickle.load(f)
-    A_hs = data["A_hs"]
-    b_hs = data["b_hs"]
-    path = data["path"]
-    occ_clean = data["occ_clean"]
-
-with open(corrgen_path, "rb") as f:
-    data = pickle.load(f)
-    path = data["path"]
-    occ_clean = data["occ_clean"]
-    ellipse_pts_world = data["ellipse_pts_world"]
-    ppr = data["ppr"]
+# n_decomp--> 4,5,6,8
+# n_corrgen--> 3(6),12,16,24
 
 
-# %%
-# fig = plt.figure()
-# ax = fig.add_subplot(111)  # , projection="3d")
 def visualize_environment(
     Al, bl, p=None, p_interp=None, q=None, ax=None, planar=False, ax_view=True
 ):
@@ -161,6 +146,27 @@ def visualize_environment(
     return ax
 
 
+print("Importing data...")
+with open(decomp_path, "rb") as f:
+    data = pickle.load(f)
+    A_hs = data["A_hs"]
+    b_hs = data["b_hs"]
+    path = data["path"]
+    occ_clean = data["occ_clean"]
+
+with open(corrgen_path, "rb") as f:
+    data = pickle.load(f)
+    path = data["path"]
+    occ_clean = data["occ_clean"]
+    ellipse_pts_world = data["ellipse_pts_world"]
+    ppr = data["ppr"]
+
+
+# %%
+# fig = plt.figure()
+# ax = fig.add_subplot(111)  # , projection="3d")
+
+
 ax = visualize_environment(
     Al=[Aa[:, :2] for Aa in A_hs],
     bl=b_hs,
@@ -187,7 +193,7 @@ ax.scatter(
 )
 
 n_angles = ellipse_pts_world.shape[1]
-for j in [0, 9]:
+for j in [0, 8]:
     ax.plot(
         ellipse_pts_world[:, j, 0],
         ellipse_pts_world[:, j, 1],
@@ -202,7 +208,7 @@ for i in range(0, n_eval):
         ellipse_pts_world[i, :, 1],
         # ellipse_pts_world[i, :, 2],
         "m-",
-        alpha=0.05,
+        alpha=0.1,
     )
 
 ax.dist = 3
@@ -211,4 +217,4 @@ ax.dist = 3
 ax.set_ylim([-50, 0])
 ax.axis("equal")
 plt.show()
-# fig.savefig(save_path + 'kitti_cross_section.pdf',dpi=1800)
+# plt.gcf().savefig(save_path + 'comparison_3.pdf',dpi=1800)

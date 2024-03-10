@@ -160,14 +160,14 @@ ax.scatter(
 n_angles = ellipse_pts_world1.shape[1]
 for j in [0, 9]:
     ax.plot(
-        ellipse_pts_world1[:, j, 0],
-        ellipse_pts_world1[:, j, 1],
+        ellipse_pts_world1[n_start:, j, 0],
+        ellipse_pts_world1[n_start:, j, 1],
         # ellipse_pts_world1[:, j, 2],
         "k-",
         alpha=0.5,
     )
 n_eval = ellipse_pts_world1.shape[0]
-for i in range(0, n_eval):
+for i in range(n_start, n_eval):
     ax.plot(
         ellipse_pts_world1[i, :, 0],
         ellipse_pts_world1[i, :, 1],
@@ -198,8 +198,8 @@ for i in range(0, n_eval):
 
 ax.dist = 3
 # plt.tight_layout()
-# ax.set_axis_off()
+ax.set_axis_off()
 ax.set_ylim([-50, 0])
 ax.axis("equal")
 plt.show()
-# fig.savefig(save_path + 'kitti_cross_section.pdf',dpi=1800)
+# fig.savefig(save_path + 'overview_top.pdf',dpi=1800)
