@@ -1,4 +1,4 @@
 __pycache__/
 *.pkl
 data/
-*.svg
+kitti.svg

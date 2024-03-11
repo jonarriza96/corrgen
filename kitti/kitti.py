@@ -324,7 +324,7 @@ if save:
 
     print("Saving data...")
     if corrgen:
-        corrgen_path = data_path + file_name + "/corrgen/" + str(poly_deg)
+        corrgen_path = data_path + file_name + "/corrgen/time_volumes/" + str(poly_deg)
         if LP:
             corrgen_path += "_LP"
         else:
