@@ -5,6 +5,9 @@ import pydecomp as pdc
 import pymoplit as mpl
 import cvxpy as cp
 
+import argparse
+import pickle
+
 from papor.papor import PAPOR
 from papor.utils.visualize import axis_equal
 
@@ -190,8 +193,38 @@ def get_cage(ppr, covers):
     return occ_cage
 
 
-poly_deg = 12  # Degree of the polynomial for corridor
-LP = False  # Corridor computation with Linear Programming
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--n_corrgen",
+    type=int,
+    default=-1,
+    help="Polynomial degree for corrgen",
+)
+parser.add_argument(
+    "--lp",
+    action="store_true",
+    help="Runs LP instead of SDP",
+)
+parser.add_argument(
+    "--no_visualization",
+    action="store_true",
+    help="Does not show data and animation",
+)
+parser.add_argument(
+    "--save",
+    action="store_true",
+    help="Save data",
+)
+args = parser.parse_args()
+
+# poly_deg = 15  # Degree of the polynomial for corridor
+# LP = False  # Corridor computation with Linear Programming
+poly_deg = args.n_corrgen
+LP = args.lp
+visualize = not args.no_visualization
+save = args.save
+
 polynomial_order = 3  # Order of the parametric reference polynomial
 path = np.array([[0, -3, 0], [0, 1, 0], [0, 10, 0]])
 
@@ -206,7 +239,7 @@ eps = 1e-1  # LP ###NOT USED###
 # --------------------------- Generate point cloud --------------------------- #
 
 # ellipses
-center1 = (0.1, 0.1, path[0, 1] + 0.1)  # Center point of the ellipse
+center1 = (0.1, 0.1, path[0, 1] + 0.2)  # Center point of the ellipse
 size1 = (2, 3)  # Size of the ellipse along x and y axes respectively
 ellipse1 = ellipse_3d(center1, size1, angle=np.pi / 4)
 
@@ -214,7 +247,7 @@ center2 = (0.1, -0.5, 4)  # Center point of the ellipse
 size2 = (2, 4)  # Size of the ellipse along x and y axes respectively
 ellipse2 = ellipse_3d(center2, size2, angle=-np.pi / 4)
 
-center3 = (0.1, 0.1, path[-1, 1] - 0.1)  # Center point of the ellipse
+center3 = (0.1, 0.1, path[-1, 1] - 0.01)  # Center point of the ellipse
 size3 = (2, 3)  # Size of the ellipse along x and y axes respectively
 ellipse3 = ellipse_3d(center3, size3, angle=-np.pi / 4)
 
@@ -362,112 +395,128 @@ print(f"CORRGEN --> Parametric volume: {parametric_volume}")
 #                                   Visualize                                  #
 # ---------------------------------------------------------------------------- #
 
-# ax = pdc.visualize_environment(Al=A_hs, bl=b_hs, p=path)
-# # ax = plt.figure().add_subplot(111, projection="3d")
-# ax.scatter(
-#     cloud[:, 0],
-#     cloud[:, 1],
-#     cloud[:, 2],
-#     c=cloud[:, 2],
-#     cmap="turbo",
-#     alpha=0.5,
-# )
+if visualize:
+    # ---------------------------- Ellipse parameters ---------------------------- #
+    eig_min = 4 / (ellipse_axis_max**2)
+    eig_max = 4 / (ellipse_axis_min**2)
+    plt.figure()
+    plt.subplot(411)
+    plt.plot(xi_eval, eigs, ".")
+    plt.plot([0, 1], [eig_min, eig_min], "k--")
+    # plt.plot([0, 1], [2*eig_max, 2*eig_max], "k--")
+    plt.ylabel("Eigenvalues")
+    plt.subplot(412)
+    plt.plot([0, 1], [ellipse_axis_max, ellipse_axis_max], "k--")
+    plt.plot([0, 1], [ellipse_axis_min, ellipse_axis_min], "k--")
+    plt.plot(xi_eval, ellipse_params[:, :2])
+    plt.plot(xi_eval, 2 / np.sqrt(eigs))
+    plt.ylabel("Width/Height")
+    plt.subplot(413)
+    plt.plot(xi_eval, ellipse_params[:, -2:])
+    plt.ylabel("Offset")
+    plt.subplot(414)
+    plt.plot(xi_eval, ellipse_params[:, 2])
+    plt.ylabel("Angle")
 
-# ax.plot(path[:, 0], path[:, 1], path[:, 2], "ko-")
-# ax.plot(curve[:, 0], curve[:, 1], curve[:, 2], "b-")
-
-# axis_equal(cloud[:, 0], cloud[:, 1], cloud[:, 2], ax=plt.gca())
-
-# ---------------------------- Ellipse parameters ---------------------------- #
-eig_min = 4 / (ellipse_axis_max**2)
-eig_max = 4 / (ellipse_axis_min**2)
-plt.figure()
-plt.subplot(411)
-plt.plot(xi_eval, eigs, ".")
-plt.plot([0, 1], [eig_min, eig_min], "k--")
-# plt.plot([0, 1], [2*eig_max, 2*eig_max], "k--")
-plt.ylabel("Eigenvalues")
-plt.subplot(412)
-plt.plot([0, 1], [ellipse_axis_max, ellipse_axis_max], "k--")
-plt.plot([0, 1], [ellipse_axis_min, ellipse_axis_min], "k--")
-plt.plot(xi_eval, ellipse_params[:, :2])
-plt.plot(xi_eval, 2 / np.sqrt(eigs))
-plt.ylabel("Width/Height")
-plt.subplot(413)
-plt.plot(xi_eval, ellipse_params[:, -2:])
-plt.ylabel("Offset")
-plt.subplot(414)
-plt.plot(xi_eval, ellipse_params[:, 2])
-plt.ylabel("Angle")
-
-ind_view = np.random.randint(0, n_eval)
-width = ellipse_params[ind_view, 0]
-height = ellipse_params[ind_view, 1]
-angle = ellipse_params[ind_view, 2]
-axis1 = width / 2 * np.array([np.cos(angle), np.sin(angle)])
-axis2 = height / 2 * np.array([np.cos(angle + np.pi / 2), np.sin(angle + np.pi / 2)])
-
-# ----------------------- Components of ellipse matrix ----------------------- #
-a_mat = P_eval[:, 0, 0]
-b_mat = P_eval[:, 1, 1]
-c_mat = P_eval[:, 0, 1]
-d_mat = pp_eval[:, 0]
-e_mat = pp_eval[:, 1]
-
-plt.figure()
-plt.plot(xi_eval, a_mat, label="a")
-plt.plot(xi_eval, b_mat, label="b")
-plt.plot(xi_eval, c_mat, label="c")
-plt.plot(xi_eval, d_mat, label="d")
-plt.plot(xi_eval, e_mat, label="e")
-
-plt.legend(title="P=[[a,c],[c,b]],pp=[d,e]")
-plt.suptitle("Components of ellipse matrix")
-
-# ---------------------------------- 3D view --------------------------------- #
-# if decomp:
-# ax = pdc.visualize_environment(Al=A_hs, bl=b_hs, p=path, planar=False)
-# else:
-ax = plt.figure().add_subplot(111, projection="3d")
-
-occ_v = cloud.copy()
-ind = occ_v[:, 2] > -1005  # -1.5
-ax.scatter(
-    occ_v[ind, 0],
-    occ_v[ind, 1],
-    occ_v[ind, 2],
-    marker=".",
-    c=occ_v[ind, 2],  # -(occ_v[ind, 0] ** 2 + occ_v[ind, 1] ** 2),
-    cmap="turbo",
-)
-
-ax.plot(path[:, 0], path[:, 1], path[:, 2], "k-o")
-
-ax.plot(
-    ppr.parametric_path["p"][:, 0],
-    ppr.parametric_path["p"][:, 1],
-    ppr.parametric_path["p"][:, 2],
-    "-b",
-)
-# ax.plot(path[:, 0], path[:, 1], path[:, 2], "-ok")
-for j in range(n_angles):
-    ax.plot(
-        ellipse_pts_world[:, j, 0],
-        ellipse_pts_world[:, j, 1],
-        ellipse_pts_world[:, j, 2],
-        "k-",
-        alpha=0.5,
-    )
-for i in range(0, n_eval, 10):
-    ax.plot(
-        ellipse_pts_world[i, :, 0],
-        ellipse_pts_world[i, :, 1],
-        ellipse_pts_world[i, :, 2],
-        "r-",
-        alpha=0.5,
+    ind_view = np.random.randint(0, n_eval)
+    width = ellipse_params[ind_view, 0]
+    height = ellipse_params[ind_view, 1]
+    angle = ellipse_params[ind_view, 2]
+    axis1 = width / 2 * np.array([np.cos(angle), np.sin(angle)])
+    axis2 = (
+        height / 2 * np.array([np.cos(angle + np.pi / 2), np.sin(angle + np.pi / 2)])
     )
 
-pts_map = np.vstack([cloud.copy()])
-axis_equal(X=pts_map[:, 0], Y=pts_map[:, 1], Z=pts_map[:, 2], ax=plt.gca())
+    # ----------------------- Components of ellipse matrix ----------------------- #
+    a_mat = P_eval[:, 0, 0]
+    b_mat = P_eval[:, 1, 1]
+    c_mat = P_eval[:, 0, 1]
+    d_mat = pp_eval[:, 0]
+    e_mat = pp_eval[:, 1]
 
-plt.show()
+    plt.figure()
+    plt.plot(xi_eval, a_mat, label="a")
+    plt.plot(xi_eval, b_mat, label="b")
+    plt.plot(xi_eval, c_mat, label="c")
+    plt.plot(xi_eval, d_mat, label="d")
+    plt.plot(xi_eval, e_mat, label="e")
+
+    plt.legend(title="P=[[a,c],[c,b]],pp=[d,e]")
+    plt.suptitle("Components of ellipse matrix")
+
+    # ---------------------------------- 3D view --------------------------------- #
+    # if decomp:
+    # ax = pdc.visualize_environment(Al=A_hs, bl=b_hs, p=path, planar=False)
+    # else:
+    ax = plt.figure().add_subplot(111, projection="3d")
+
+    occ_v = cloud.copy()
+    ind = occ_v[:, 2] > -1005  # -1.5
+    ax.scatter(
+        occ_v[ind, 0],
+        occ_v[ind, 1],
+        occ_v[ind, 2],
+        marker=".",
+        c=occ_v[ind, 2],  # -(occ_v[ind, 0] ** 2 + occ_v[ind, 1] ** 2),
+        cmap="turbo",
+    )
+
+    ax.plot(path[:, 0], path[:, 1], path[:, 2], "k-o")
+
+    ax.plot(
+        ppr.parametric_path["p"][:, 0],
+        ppr.parametric_path["p"][:, 1],
+        ppr.parametric_path["p"][:, 2],
+        "-b",
+    )
+    # ax.plot(path[:, 0], path[:, 1], path[:, 2], "-ok")
+    for j in range(n_angles):
+        ax.plot(
+            ellipse_pts_world[:, j, 0],
+            ellipse_pts_world[:, j, 1],
+            ellipse_pts_world[:, j, 2],
+            "k-",
+            alpha=0.5,
+        )
+    for i in range(0, n_eval, 10):
+        ax.plot(
+            ellipse_pts_world[i, :, 0],
+            ellipse_pts_world[i, :, 1],
+            ellipse_pts_world[i, :, 2],
+            "r-",
+            alpha=0.5,
+        )
+
+    pts_map = np.vstack([cloud.copy()])
+    axis_equal(X=pts_map[:, 0], Y=pts_map[:, 1], Z=pts_map[:, 2], ax=plt.gca())
+
+    plt.show()
+
+
+# --------------------------------- Save data -------------------------------- #
+if save:
+    path = "/home/jonarriza96/corrgen_v2/toy_example/figures/data/3d/"
+    file_name = str(poly_deg)
+    if LP:
+        file_name += "_LP"
+    else:
+        file_name += "_SDP"
+    file_path = path + file_name + ".pkl"
+    with open(file_path, "wb") as f:
+        pickle.dump(
+            {
+                "occ_cl": cloud,
+                "occ_cl_no_cage": cloud_no_cage,
+                "occ_cage": occ_cage,
+                "occ_erf": cloud_erf,
+                "path": path,
+                "ppr": ppr,
+                "coeffs": coeffs,
+                "ellipse_params": ellipse_params,
+                "ellipse_pts": ellipse_pts,
+                "ellipse_pts_world": ellipse_pts_world,
+                "corridor_volume": parametric_volume,
+                "solve_time": prob._solve_time,
+            },
+            f,
+        )
