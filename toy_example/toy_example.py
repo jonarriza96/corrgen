@@ -110,8 +110,8 @@ def box_3d(center, dimensions, point_cloud_density=0.1):
 
 
 def get_cage(ppr, covers):
-    l = 7  # side length of the cage
-    h = -8  # height of the cage
+    l = 6  # side length of the cage
+    h = -7  # height of the cage
     n_topbottom = (
         5  # 6  # how many points in the top and bottom of the cage per sweep line
     )
@@ -190,10 +190,10 @@ def get_cage(ppr, covers):
     return occ_cage
 
 
-poly_deg = 6  # Degree of the polynomial for corridor
+poly_deg = 12  # Degree of the polynomial for corridor
 LP = False  # Corridor computation with Linear Programming
 polynomial_order = 3  # Order of the parametric reference polynomial
-path = np.array([[0, -3, 0], [0, 1, 0], [0, 8, 0]])
+path = np.array([[0, -3, 0], [0, 1, 0], [0, 10, 0]])
 
 ellipse_axis_max = 20  # SDP and LP ###NOT USED###
 ellipse_axis_min = 0.5  # SDP and LP ###NOT USED###
@@ -206,52 +206,30 @@ eps = 1e-1  # LP ###NOT USED###
 # --------------------------- Generate point cloud --------------------------- #
 
 # ellipses
-center1 = (0.1, 0.1, 0.1)  # Center point of the ellipse
-size1 = (4, 1)  # Size of the ellipse along x and y axes respectively
+center1 = (0.1, 0.1, path[0, 1] + 0.1)  # Center point of the ellipse
+size1 = (2, 3)  # Size of the ellipse along x and y axes respectively
 ellipse1 = ellipse_3d(center1, size1, angle=np.pi / 4)
 
-center2 = (0.1, 0.1, 7)  # Center point of the ellipse
-size2 = (1, 4)  # Size of the ellipse along x and y axes respectively
+center2 = (0.1, 0.1, 4)  # Center point of the ellipse
+size2 = (2, 4)  # Size of the ellipse along x and y axes respectively
 ellipse2 = ellipse_3d(center2, size2, angle=-np.pi / 4)
 
-center3 = (0.1, 0.1, 3.5)  # Center point of the ellipse
-size3 = (1, 4)  # Size of the ellipse along x and y axes respectively
-ellipse3 = ellipse_3d(center3, size3, angle=np.pi / 4)
-
-center4 = (0.1, 0.1, 3.4)  # Center point of the ellipse
-size4 = (1, 4)  # Size of the ellipse along x and y axes respectively
-ellipse4 = ellipse_3d(center4, size4, angle=np.pi / 4)
-# center4 = (0.1, 0.1, 2.5)  # Center point of the ellipse
-# size4 = (2, 4)  # Size of the ellipse along x and y axes respectively
-# ellipse4 = ellipse_3d(center4, size4, angle=np.pi / 2)
+center3 = (0.1, 0.1, path[-1, 1] - 0.1)  # Center point of the ellipse
+size3 = (2, 3)  # Size of the ellipse along x and y axes respectively
+ellipse3 = ellipse_3d(center3, size3, angle=-np.pi / 4)
 
 # boxes
-center_tower = (2, 5.0, 0.1)  # Center point of the box
+center_tower = (1, 1.0, 0.1)  # Center point of the box
 dimensions = (1, 1, 7)  # Width, height, and length of the box
 tower1 = box_3d(center_tower, dimensions, point_cloud_density=0.3)
 
-center_tower = (-2, 5.0, 0.1)  # Center point of the box
+center_tower = (-1.5, 7.0, 0.1)  # Center point of the box
 dimensions = (1, 1, 7)  # Width, height, and length of the box
 tower2 = box_3d(center_tower, dimensions, point_cloud_density=0.3)
 
-##################################
 cloud = np.vstack(
-    [ellipse1, ellipse2, ellipse3, ellipse4]
+    [ellipse1, ellipse2, ellipse3, tower1, tower2]
 )  # , ellipse4])  # , tower1, tower2])
-
-# ellipse_cross = ellipse4[:, :2].copy()
-cloud = []
-y_sweep = np.linspace(-3, 7, 30)
-for yy in y_sweep:
-    center4 = (0.1, 0.1, yy)  # Center point of the ellipse
-    size4 = (1.24, 4.13)  # Size of the ellipse along x and y axes respectively
-    ellipse4 = ellipse_3d(center4, size4, angle=-np.pi / 4)
-    cloud += [ellipse4]
-cloud = np.vstack(cloud)
-##################################
-
-
-# from sys import exit
 
 
 # ax = plt.figure().add_subplot(111, projection="3d")
