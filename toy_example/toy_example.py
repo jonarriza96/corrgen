@@ -111,7 +111,7 @@ def box_3d(center, dimensions, point_cloud_density=0.1):
 
 def get_cage(ppr, covers):
     l = 6  # side length of the cage
-    h = -7  # height of the cage
+    h = -8  # height of the cage
     n_topbottom = (
         5  # 6  # how many points in the top and bottom of the cage per sweep line
     )
@@ -143,7 +143,7 @@ def get_cage(ppr, covers):
         i_horizontal = i_horizontal / np.linalg.norm(i_horizontal)
         i_vertical = i_vertical / np.linalg.norm(i_vertical)
 
-        h_min = 3  # -1
+        h_min = 4  # -1
         h_max = h_min + h
         # top and bottom
         occ_cage += [
@@ -210,7 +210,7 @@ center1 = (0.1, 0.1, path[0, 1] + 0.1)  # Center point of the ellipse
 size1 = (2, 3)  # Size of the ellipse along x and y axes respectively
 ellipse1 = ellipse_3d(center1, size1, angle=np.pi / 4)
 
-center2 = (0.1, 0.1, 4)  # Center point of the ellipse
+center2 = (0.1, -0.5, 4)  # Center point of the ellipse
 size2 = (2, 4)  # Size of the ellipse along x and y axes respectively
 ellipse2 = ellipse_3d(center2, size2, angle=-np.pi / 4)
 
