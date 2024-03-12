@@ -11,7 +11,7 @@ import pydecomp as pdc
 
 from papor.utils.visualize import axis_equal, plot_frames
 
-from utils import (
+from corrgen2.corrgen import (
     polynomial,
     NLP,
     project_cloud_to_parametric_path,
