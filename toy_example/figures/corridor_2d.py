@@ -50,12 +50,12 @@ ax = fig.add_subplot(111)
 # ax = mpl.visualize_environment(Al=A, bl=b, p=path, planar=True, ax=ax)
 
 ax.plot(occ_cl_nbnd[:, 0], occ_cl_nbnd[:, 1], ".", color="k")
-# ax.plot(
-#     ppr.parametric_path["p"][:, 0],
-#     ppr.parametric_path["p"][:, 1],
-#     "r-",
-#     linewidth=1,
-# )
+ax.plot(
+    ppr.parametric_path["p"][:, 0],
+    ppr.parametric_path["p"][:, 1],
+    "k--",
+    # linewidth=1,
+)
 # ax = plot_frames(
 #     r=ppr.parametric_path["p"],
 #     e1=ppr.parametric_path["erf"][:, :, 0],

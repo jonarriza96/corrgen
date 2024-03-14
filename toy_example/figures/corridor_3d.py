@@ -55,6 +55,13 @@ for cont, e_pts in enumerate(ellipse_pts):
         c=occ_v[:, 2],
         cmap="turbo",
     )
+
+    ax.plot(
+        ppr1.parametric_path["p"][:, 0],
+        ppr1.parametric_path["p"][:, 1],
+        ppr1.parametric_path["p"][:, 2],
+        "k--",
+    )
     # if cont == 0:
     #     n_start = 0
     # else:
@@ -94,7 +101,7 @@ for cont, e_pts in enumerate(ellipse_pts):
     plt.tight_layout()
     ax.set_axis_off()
 
-    # fig.savefig(save_path + "overview_isometric_" + str(cont) + ".pdf", dpi=1800)
+    fig.savefig(save_path + "overview_isometric_" + str(cont) + ".pdf", dpi=1800)
 plt.show()
 
 # %%
@@ -124,6 +131,12 @@ ax.scatter(
     c=occ[:, 2],
     cmap="turbo",
     marker=".",
+)
+ax.plot(
+    ppr1.parametric_path["p"][:, 0],
+    ppr1.parametric_path["p"][:, 1],
+    # ppr1.parametric_path["p"][:, 2],
+    "k--",
 )
 
 # n_angles = ellipse_pts[en].shape[1]
@@ -168,7 +181,12 @@ ax.scatter(
     cmap="turbo",
     marker=".",
 )
-
+ax.plot(
+    # ppr1.parametric_path["p"][:, 0],
+    ppr1.parametric_path["p"][:, 1],
+    ppr1.parametric_path["p"][:, 2],
+    "k--",
+)
 
 plt.tight_layout()
 ax.set_axis_off()
