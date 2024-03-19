@@ -101,7 +101,7 @@ for cont, e_pts in enumerate(ellipse_pts):
     plt.tight_layout()
     ax.set_axis_off()
 
-    fig.savefig(save_path + "overview_isometric_" + str(cont) + ".pdf", dpi=1800)
+    # fig.savefig(save_path + "overview_isometric_" + str(cont) + ".pdf", dpi=1800)
 plt.show()
 
 # %%
@@ -252,6 +252,68 @@ ax.plot(
 # ax.dist = 6
 ax.set_aspect("equal")
 # plt.tight_layout()
+ax.set_axis_off()
+
+# fig.savefig(save_path + "3d_top_no" + ".pdf", dpi=1800)
+plt.show()
+
+# %%
+col = "r"
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+# ax = fig.add_subplot(111)
+
+occ_v = occ
+ax.scatter(
+    occ_v[:, 0],
+    occ_v[:, 1],
+    occ_v[:, 2],
+    marker=".",
+    c=occ_v[:, 2],
+    cmap="turbo",
+)
+# if cont == 0:
+#     n_start = 0
+# else:
+#     n_start = 10
+n_start = 10
+n_end = -1
+n_eval = ellipse_pts_no.shape[0]
+n_angles = ellipse_pts_no.shape[1]
+n_step_rings = 10
+for j in range(0, n_angles - 1):
+    ax.plot(
+        ellipse_pts_no[n_start:n_end, j, 0],
+        ellipse_pts_no[n_start:n_end, j, 1],
+        ellipse_pts_no[n_start:n_end, j, 2],
+        "k-",
+        alpha=0.25,
+    )
+for i in range(n_start, n_eval, n_step_rings):
+    ax.plot(
+        ellipse_pts_no[i, :, 0],
+        ellipse_pts_no[i, :, 1],
+        ellipse_pts_no[i, :, 2],
+        "-",
+        color=col,
+        alpha=0.5,
+    )
+
+ax.plot(
+    ppr1.parametric_path["p"][:, 0],
+    ppr1.parametric_path["p"][:, 1],
+    ppr1.parametric_path["p"][:, 2],
+    "k--",
+)
+
+pts_map = occ.copy()
+axis_equal(X=pts_map[:, 0], Y=pts_map[:, 1], Z=pts_map[:, 2], ax=plt.gca())
+
+# ax.view_init(azim=-66, elev=22)
+# ax.view_init(azim=-39, elev=17)
+# ax.dist = 6
+# ax.set_aspect("equal")
+plt.tight_layout()
 ax.set_axis_off()
 
 # fig.savefig(save_path + "3d_top_no" + ".pdf", dpi=1800)
