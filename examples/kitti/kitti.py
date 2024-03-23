@@ -9,7 +9,7 @@ import pickle
 import cvxpy as cp
 import pydecomp as pdc
 
-from corrgen.utils import axis_equal
+from corrgen.utils import get_corrgen_path, axis_equal
 
 from corrgen.corrgen import (
     polynomial,
@@ -82,7 +82,7 @@ eps = 1e-1  # LP ###NOT USED###
 
 # ------------------------------- Import world ------------------------------- #
 print("Importing data...")
-path = "/home/jon/corrgen2/kitti/data/" # TODO
+path = get_corrgen_path() + "/examples/kitti/data/" 
 with open(path + file_name + ".pkl", "rb") as f:
     data = pickle.load(f)
     world = data["world"]

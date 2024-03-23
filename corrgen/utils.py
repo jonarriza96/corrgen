@@ -2,7 +2,7 @@ import numpy as np
 # import casadi as cs
 
 import matplotlib as plt
-
+import subprocess
 
 # def convert_curve_to_casadi_func(T, coeffs, order, n, dim):
 #     curve_f = spline_curve(n=n, order=order, dim=dim)
@@ -142,3 +142,9 @@ def axis_equal(X, Y, Z, ax=None):
     ax.set_zlim(mid_z - 1.2 * max_range, mid_z + 1.2 * max_range)
 
     return ax
+
+def get_corrgen_path():
+    corrgen_path = subprocess.run(
+        "echo $CORRGEN_PATH", shell=True, capture_output=True, text=True
+    ).stdout.strip("\n")
+    return corrgen_path
