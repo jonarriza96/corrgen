@@ -9,14 +9,12 @@ import pickle
 import cvxpy as cp
 import pydecomp as pdc
 
-from papor.utils.visualize import axis_equal, plot_frames
+from corrgen.utils import axis_equal
 
-from corrgen2.corrgen import (
+from corrgen.corrgen import (
     polynomial,
     NLP,
     project_cloud_to_parametric_path,
-    add_roof_floor,
-    add_world_boundaries,
     get_ellipse_parameters,
     get_ellipse_points,
     get_cage,
@@ -84,7 +82,7 @@ eps = 1e-1  # LP ###NOT USED###
 
 # ------------------------------- Import world ------------------------------- #
 print("Importing data...")
-path = "/home/jonarriza96/corrgen/examples/experiments/data/kitti/"
+path = "/home/jon/corrgen2/kitti/data/" # TODO
 with open(path + file_name + ".pkl", "rb") as f:
     data = pickle.load(f)
     world = data["world"]
