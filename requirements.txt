@@ -4,4 +4,4 @@ cvxpy
 pydecomp
 pyny3d
 casadi
-cdd
+pycddlib
