@@ -54,7 +54,7 @@ The options are the following ones:
 - `--n_corrgen`: Integer indicating the polynomial degree of the polynomials in corrgen.
 - `--n_decomp`: Sets the number of polygons for convex decomposition (and runs it)
 - `--no_visualization`: Deactivates visualization
-- `--save`: Saves the results in the `pfdq/results/data` folder. It is recommended not to trigger this, since you will overwrite the results of the paper.
+- `--save`: Saves the results. Make sure you update the path in the script.
 
 ### Toy example
 
