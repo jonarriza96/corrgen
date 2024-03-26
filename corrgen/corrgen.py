@@ -354,7 +354,7 @@ def get_ellipse_points(width, height, angle, theta):
     return pt
 
 
-def get_cage(ppr, covers):
+def get_cage(parametric_path, covers):
     l = 10  # side length of the cage
     h = 4  # heigh of the cage
     n_topbottom = (
@@ -374,9 +374,9 @@ def get_cage(ppr, covers):
 
     occ_cage = []
     for i in range(xi_wrap.shape[0]):
-        ind_i = np.argmin(np.abs(ppr["xi"] - xi_wrap[i]))
-        p_i = ppr["p"][ind_i]
-        e1_i = ppr["erf"][ind_i, :, 0]
+        ind_i = np.argmin(np.abs(parametric_path["xi"] - xi_wrap[i]))
+        p_i = parametric_path["p"][ind_i]
+        e1_i = parametric_path["erf"][ind_i, :, 0]
         i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
 
         horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal

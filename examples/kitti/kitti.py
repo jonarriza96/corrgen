@@ -84,22 +84,12 @@ eps = 1e-1  # LP ###NOT USED###
 print("Importing data...")
 path = get_corrgen_path() + "/examples/kitti/data/"
 with open(path + file_name + ".pkl", "rb") as f:
-    # with open(path + "case2_new" + ".pkl", "rb") as f:
     data = pickle.load(f)
 
-    # parametric_path = data["parametric_path"]
-    # occ_clean = data["occ_clean"]
-    # path = data["path"]
-    # occ_cl = data["occ_cl"]
-
-    world = data["world"]
-    occ_clean = data["occ_sensor_clean"]
-
-
-occ_cl = world["occ_cl"]
-path = world["linear_path"]
-parametric_path = world["ppr"].parametric_path
-ppr = world["ppr"]
+    parametric_path = data["parametric_path"]
+    occ_clean = data["occ_clean"]
+    path = data["path"]
+    occ_cl = data["occ_cl"]
 
 
 # ---------------------------- Process point cloud --------------------------- #
@@ -111,14 +101,13 @@ ind = occ_cl[:, 2] > -1.5
 occ_cl = occ_cl[ind]
 
 # add cage
-occ_cage = get_cage(ppr=parametric_path, covers=not corrgen)
+occ_cage = get_cage(parametric_path=parametric_path, covers=not corrgen)
 occ_cl_no_cage = occ_cl.copy()
 occ_cl = np.vstack([occ_cl, occ_cage])
 # occ_cl = occ_cage.copy()
 
 # project to the path and prune unnecessary points
 occ_erf, min_d_tr, max_d_tr, ind_proj = project_cloud_to_parametric_path(
-    # pcl=occ_cl, parametric_path=ppr.parametric_path, safety_check=False, prune=True
     pcl=occ_cl,
     parametric_path=parametric_path,
     safety_check=False,
@@ -139,11 +128,8 @@ occ_cl = occ_cl[ind_in]
 if decomp:
     box = np.array([[10, 10, 10]])
     occ_cl_decomp = occ_cl.copy()  # add_world_boundaries(occ_cl, planar=False)
-    # ind_dc = np.linspace(0, ppr.parametric_path["p"].shape[0] - 1, n_decomp, dtype=int)
     ind_dc = np.linspace(0, parametric_path["p"].shape[0] - 1, n_decomp, dtype=int)
-    # path_decomp = ppr.parametric_path["p"][ind_dc]
     path_decomp = parametric_path["p"][ind_dc]
-    # path_decomp[:, 2] = 0
     t0_dc = time.time()
     A_hs, b_hs = pdc.convex_decomposition_3D(occ_cl_decomp, path_decomp, box)
     t1_dc = time.time()
@@ -184,7 +170,6 @@ if corrgen:
     # ----------------------------- evaluate corridor ---------------------------- #
     n_angles = 18
 
-    # n_eval = ppr.parametric_path["p"].shape[0]  # 100
     n_eval = parametric_path["p"].shape[0]  # 100
     xi_eval = np.linspace(0, 1, n_eval)
     P_eval = np.zeros((n_eval, 2, 2))
@@ -213,11 +198,8 @@ if corrgen:
                 theta=angles[j],  # + angle,
             )
 
-            # ind = np.argmin(np.abs(ppr.parametric_path["xi"] - xi_eval[i]))
             ind = np.argmin(np.abs(parametric_path["xi"] - xi_eval[i]))
-            # gamma = ppr.parametric_path["p"][ind]
             gamma = parametric_path["p"][ind]
-            # erf = ppr.parametric_path["erf"][ind]
             erf = parametric_path["erf"][ind]
 
             w = ellipse_pts[i, j, :] + ellipse_params[i, -2:]
@@ -304,9 +286,6 @@ if visualize:
     ax.plot(path[:, 0], path[:, 1], path[:, 2], "k-o")
 
     ax.plot(
-        # ppr.parametric_path["p"][:, 0],
-        # ppr.parametric_path["p"][:, 1],
-        # ppr.parametric_path["p"][:, 2],
         parametric_path["p"][:, 0],
         parametric_path["p"][:, 1],
         parametric_path["p"][:, 2],
@@ -339,20 +318,6 @@ if visualize:
 # ---------------------------------------------------------------------------- #
 #                                     Save                                     #
 # ---------------------------------------------------------------------------- #
-corrgen_path = "/home/jonarriza96/corrgen_v2/examples/kitti/data/case3_new.pkl"
-with open(corrgen_path, "wb") as f:
-    pickle.dump(
-        {
-            # "world": world,
-            "occ_cl": world["occ_cl"],
-            "path": world["linear_path"],
-            "parametric_path": world["ppr"].parametric_path,
-            "occ_clean": occ_clean,
-        },
-        f,
-    )
-
-
 if save:
     data_path = "/home/jonarriza96/corrgen_v2/kitti/data/"
 
@@ -372,7 +337,7 @@ if save:
                     "occ_clean": occ_clean,
                     "occ_erf": occ_erf,
                     "path": path,
-                    "ppr": ppr,
+                    "parametric_path": parametric_path,
                     "coeffs": coeffs,
                     "ellipse_params": ellipse_params,
                     "ellipse_pts": ellipse_pts,
@@ -393,7 +358,7 @@ if save:
                     "occ_clean": occ_clean,
                     "occ_erf": occ_erf,
                     "path": path,
-                    "ppr": ppr,
+                    "parametric_path": parametric_path,
                     "A_hs": A_hs,
                     "b_hs": b_hs,
                 },
