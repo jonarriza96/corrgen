@@ -354,23 +354,41 @@ def get_ellipse_points(width, height, angle, theta):
     return pt
 
 
-def get_cage(parametric_path, covers):
-    l = 10  # side length of the cage
-    h = 4  # heigh of the cage
-    n_topbottom = (
-        5  # 6  # how many points in the top and bottom of the cage per sweep line
-    )
-    n_sides = 5
-    # int(
-    #     h / l * n_topbottom
-    # )  # how many points in the sides of the cage per sweep line
+def get_cage(parametric_path, covers, case):
+    if case == "kitti":
+        l = 10  # side length of the cage
+        h = 4  # heigh of the cage
+        h_min = -1
+        n_topbottom = (
+            5  # 6  # how many points in the top and bottom of the cage per sweep line
+        )
+        n_sides = 5
 
-    # n_sweep_cage = 100  # how many cages to sweep along reference path
-    # xi_wrap = np.linspace(0, 1, n_sweep_cage)
-    xi_wrap_init = np.linspace(0, 0.1, 10)
-    xi_wrap_mid = np.linspace(0.1, 0.9, 30)
-    xi_wrap_end = np.linspace(0.9, 1, 10)
-    xi_wrap = np.hstack([xi_wrap_init, xi_wrap_mid, xi_wrap_end])
+        xi_wrap_init = np.linspace(0, 0.1, 10)
+        xi_wrap_mid = np.linspace(0.1, 0.9, 30)
+        xi_wrap_end = np.linspace(0.9, 1, 10)
+        xi_wrap = np.hstack([xi_wrap_init, xi_wrap_mid, xi_wrap_end])
+
+        horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal
+        horizontal_vec = horizontal_vecs[1]
+
+    elif case == "toy_example":
+        l = 6  # side length of the cage
+        h = -8  # height of the cage
+        h_min = 4
+
+        n_topbottom = (
+            5  # 6  # how many points in the top and bottom of the cage per sweep line
+        )
+        n_sides = 5
+
+        xi_wrap_init = np.linspace(-0.05, 0.1, 20)
+        xi_wrap_mid = np.linspace(0.1, 0.9, 30)
+        xi_wrap_end = np.linspace(0.9, 1.05, 20)
+        xi_wrap = np.hstack([xi_wrap_init, xi_wrap_mid, xi_wrap_end])
+
+        horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal
+        horizontal_vec = horizontal_vecs[0]
 
     occ_cage = []
     for i in range(xi_wrap.shape[0]):
@@ -379,16 +397,12 @@ def get_cage(parametric_path, covers):
         e1_i = parametric_path["erf"][ind_i, :, 0]
         i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
 
-        horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal
-        horizontal_vec = horizontal_vecs[
-            1
-        ]  # horizontal_vecs[np.argmin(np.dot(e1_i, horizontal_vecs.T))]
+        # horizontal_vecs[np.argmin(np.dot(e1_i, horizontal_vecs.T))]
         i_vertical = np.cross(e1_i, horizontal_vec)
 
         i_horizontal = i_horizontal / np.linalg.norm(i_horizontal)
         i_vertical = i_vertical / np.linalg.norm(i_vertical)
 
-        h_min = -1
         h_max = h_min + h
         # top and bottom
         occ_cage += [
@@ -404,7 +418,6 @@ def get_cage(parametric_path, covers):
         ]
 
         # sides
-
         occ_cage += [
             p_i[:, None]
             + (i_horizontal[:, None] * l / 2)

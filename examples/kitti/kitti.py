@@ -1,4 +1,3 @@
-# %%
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -19,8 +18,6 @@ from corrgen.corrgen import (
     get_ellipse_points,
     get_cage,
 )
-
-# %matplotlib tk
 
 # ---------------------------------------------------------------------------- #
 #                                  User inputs                                 #
@@ -101,7 +98,7 @@ ind = occ_cl[:, 2] > -1.5
 occ_cl = occ_cl[ind]
 
 # add cage
-occ_cage = get_cage(parametric_path=parametric_path, covers=not corrgen)
+occ_cage = get_cage(parametric_path=parametric_path, case="kitti", covers=not corrgen)
 occ_cl_no_cage = occ_cl.copy()
 occ_cl = np.vstack([occ_cl, occ_cage])
 # occ_cl = occ_cage.copy()
@@ -121,7 +118,6 @@ occ_erf = occ_erf[ind_in]
 occ_cl = occ_cl[ind_in]
 
 
-# %%
 # ---------------------------------------------------------------------------- #
 #                             Convex decomposition                             #
 # ---------------------------------------------------------------------------- #
@@ -314,7 +310,7 @@ if visualize:
     axis_equal(X=pts_map[:, 0], Y=pts_map[:, 1], Z=pts_map[:, 2], ax=plt.gca())
 
     plt.show()
-# %%
+
 # ---------------------------------------------------------------------------- #
 #                                     Save                                     #
 # ---------------------------------------------------------------------------- #
