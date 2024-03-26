@@ -11,7 +11,7 @@ import pickle
 from papor.papor import PAPOR
 from papor.utils.visualize import axis_equal
 
-from corrgen2.corrgen import (
+from corrgen.corrgen import (
     polynomial,
     NLP,
     project_cloud_to_parametric_path,
@@ -22,7 +22,7 @@ from corrgen2.corrgen import (
     # get_cage,
 )
 
-from corrgen2.utils import convert_curve_to_casadi_func
+from corrgen.utils import convert_curve_to_casadi_func
 
 
 def ellipse_3d(center, size, angle=0):
@@ -277,7 +277,7 @@ cloud = np.vstack(
 # plt.show()
 # exit()
 # ------------------------------ Reference path ------------------------------ #
-config_path = "/home/jonarriza96/corrgen/examples/simulated/simworld_config.yaml"
+config_path = "/home/jonarriza96/corrgen_old/examples/simulated/simworld_config.yaml"
 
 box = np.array([[4, 4, 2]])
 A_hs, b_hs = pdc.convex_decomposition_3D(cloud, path, box)

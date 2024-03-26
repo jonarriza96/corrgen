@@ -374,9 +374,9 @@ def get_cage(ppr, covers):
 
     occ_cage = []
     for i in range(xi_wrap.shape[0]):
-        ind_i = np.argmin(np.abs(ppr.parametric_path["xi"] - xi_wrap[i]))
-        p_i = ppr.parametric_path["p"][ind_i]
-        e1_i = ppr.parametric_path["erf"][ind_i, :, 0]
+        ind_i = np.argmin(np.abs(ppr["xi"] - xi_wrap[i]))
+        p_i = ppr["p"][ind_i]
+        e1_i = ppr["erf"][ind_i, :, 0]
         i_horizontal = np.cross(e1_i, np.array([0, 0, 1]))
 
         horizontal_vecs = np.array([[1, 0, 0], [0, 1, 0]])  # pick the most orthongonal

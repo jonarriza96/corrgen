@@ -1,7 +1,9 @@
 # CorrGen
+
 **CorrGen — A Differentiable Collision-Free Corridor Generator.**
 
 ## Quickstart
+
 Install dependencies
 
 Create a python environment with python 3.9. For example, with conda:
@@ -12,7 +14,6 @@ conda activate corrgen
 pip install -r python/requirements.txt
 ```
 
-
 Update the `~/.bashrc` with
 
 ```bash
@@ -21,9 +22,11 @@ export PYTHONPATH=$PYTHONPATH:/$CORRGEN_PATH
 ```
 
 ## Usage
+
 To run the KITTI example in the paper, run this command:
+
 ```bash
-python kitti/kitti.py --case 2  --n_corrgen 6
+python examples/kitti/kitti.py --case 2  --n_corrgen 6
 ```
 
 The options are the following ones:
