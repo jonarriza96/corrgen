@@ -16,7 +16,11 @@ Coming soon ...
 
 ## Quickstart
 
-Install dependencies
+Install dependencies with
+
+```
+sudo apt-get install libcdd-dev
+```
 
 Create a python environment with python 3.9. For example, with conda:
 
