@@ -44,7 +44,7 @@ export PYTHONPATH=$PYTHONPATH:/$CORRGEN_PATH
 To run a real-world example from the [KITTI dataset](https://www.cvlibs.net/datasets/kitti/raw_data.php) (Figs 5 and 6 in the paper), run this command:
 
 ```bash
-python examples/kitti.py --case p  --n_corrgen 6
+python examples/kitti.py --case p  --n_corrgen 6 --lp --n_decomp
 ```
 
 The options are the following ones:
