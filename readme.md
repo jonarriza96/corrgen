@@ -6,7 +6,7 @@
 | :------------------------------: | :-----------------------------: |
 | ![camera](docs/kitti_camera.png) | ![corridors](docs/e2_kitti.gif) |
 
-For the implementation details, please check the [paper](https://jonarriza96.github.io/#contact) and/or watch the [video](https://jonarriza96.github.io/#contact).
+For the implementation details, please check the [paper](https://jonarriza96.github.io/#contact) (coming soon) and/or watch the [video](https://youtu.be/MvC7bPodXz8).
 
 If you use this framework please cite our work:
 
@@ -27,7 +27,7 @@ Create a python environment with python 3.9. For example, with conda:
 ```bash
 conda create --name corrgen python=3.9
 conda activate corrgen
-pip install -r python/requirements.txt
+pip install -r requirements.txt
 ```
 
 Update the `~/.bashrc` with
@@ -44,17 +44,17 @@ export PYTHONPATH=$PYTHONPATH:/$CORRGEN_PATH
 To run a real-world example from the [KITTI dataset](https://www.cvlibs.net/datasets/kitti/raw_data.php) (Figs 5 and 6 in the paper), run this command:
 
 ```bash
-python examples/kitti.py --case 2  --n_corrgen 6
+python examples/kitti.py --case p  --n_corrgen 6
 ```
 
 The options are the following ones:
 
-- `--case_study`: `p` (pink corridor) or `g` (green corridor).
+- `--case`: `p` (pink corridor) or `g` (green corridor).
 - `--lp`: Runs the approximated LP instead of the original SDP
 - `--n_corrgen`: Integer indicating the polynomial degree of the polynomials in corrgen.
 - `--n_decomp`: Sets the number of polygons for convex decomposition (and runs it)
-- `--no_visualization`: Deactivates visualization
-- `--save`: Saves the results. Make sure you update the path in the script.
+<!-- - `--no_visualization`: Deactivates visualization
+- `--save`: Saves the results. Make sure you update the path in the script. -->
 
 ### Toy example
 

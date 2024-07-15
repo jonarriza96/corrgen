@@ -5,3 +5,4 @@ pydecomp
 pyny3d
 casadi
 pycddlib
+proxsuite
