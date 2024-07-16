@@ -1,8 +1,8 @@
 numpy
 matplotlib
-cvxpy
-pydecomp
+cvxpy==1.4.2
+proxsuite==0.6.3
+pydecomp==1.0.0
 pyny3d
 casadi
 pycddlib
-proxsuite

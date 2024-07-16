@@ -44,7 +44,7 @@ export PYTHONPATH=$PYTHONPATH:/$CORRGEN_PATH
 To run a real-world example from the [KITTI dataset](https://www.cvlibs.net/datasets/kitti/raw_data.php) (Figs 5 and 6 in the paper), run this command:
 
 ```bash
-python examples/kitti.py --case p  --n_corrgen 6 --lp --n_decomp
+python examples/kitti.py --case p  --lp --n_corrgen 6 --n_decomp 6
 ```
 
 The options are the following ones:
@@ -61,10 +61,10 @@ The options are the following ones:
 To run a toy example (Fig. 4 in the paper), run this command:
 
 ```bash
-python examples/toy_example.py --n_corrgen 6
+python examples/toy_example.py --lp --n_corrgen 6
 ```
 
-The options are the same as for the KITTI example.
+The options are the same as for the KITTI example (except for `--case`).
 
 ### 2D cross section comparison
 
