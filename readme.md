@@ -6,12 +6,20 @@
 | :------------------------------: | :-----------------------------: |
 | ![camera](docs/kitti_camera.png) | ![corridors](docs/e2_kitti.gif) |
 
-For the implementation details, please check the [paper](https://jonarriza96.github.io/#contact) (coming soon) and/or watch the [video](https://youtu.be/MvC7bPodXz8).
+For the implementation details, please check the [paper](https://arxiv.org/pdf/2407.12283) and/or watch the [video](https://youtu.be/MvC7bPodXz8).
 
 If you use this framework please cite our work:
 
 ```
-Coming soon ...
+@misc{arrizabalaga2024differentiablecollisionfreeparametriccorridors,
+      title={Differentiable Collision-Free Parametric Corridors}, 
+      author={Jon Arrizabalaga and Zachary Manchester and Markus Ryll},
+      year={2024},
+      eprint={2407.12283},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2407.12283}, 
+}
 ```
 
 ## Quickstart
