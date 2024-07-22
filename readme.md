@@ -7,7 +7,7 @@
 | ![camera](docs/kitti_camera.png) | ![corridors](docs/e2_kitti.gif) |
 
 For the implementation details, please check the [paper](https://arxiv.org/pdf/2407.12283) and/or watch the [video](https://youtu.be/MvC7bPodXz8).
-
+  
 If you use this framework please cite our work:
 
 ```
@@ -83,3 +83,7 @@ python examples/cross_section.py
 ```
 
 Notice that every time you run the command, the point cloud in the cross section varies. This is a great standalone script, great for conceptual prototyping.
+
+## Related repositories
+For a discrete representation of the collision-free space via **convex decomposition**, check out [pydecomp](https://github.com/jonarriza96/pydecomp)!
+
