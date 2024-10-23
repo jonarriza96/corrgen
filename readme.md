@@ -6,19 +6,16 @@
 | :------------------------------: | :-----------------------------: |
 | ![camera](docs/kitti_camera.png) | ![corridors](docs/e2_kitti.gif) |
 
-For the implementation details, please check the [paper](https://arxiv.org/pdf/2407.12283) and/or watch the [video](https://youtu.be/MvC7bPodXz8).
+For the implementation details, please check the [paper](https://arxiv.org/pdf/2407.12283), watch the [video](https://youtu.be/MvC7bPodXz8) and/or the conference [talk](https://youtu.be/l6LAugm89mQ).
   
 If you use this framework please cite our work:
 
 ```
-@misc{arrizabalaga2024differentiablecollisionfreeparametriccorridors,
-      title={Differentiable Collision-Free Parametric Corridors}, 
-      author={Jon Arrizabalaga and Zachary Manchester and Markus Ryll},
-      year={2024},
-      eprint={2407.12283},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2407.12283}, 
+@article{arrizabalaga2024differentiable,
+  title={Differentiable Collision-Free Parametric Corridors},
+  author={Arrizabalaga, Jon and Manchester, Zachary and Ryll, Markus},
+  journal={arXiv preprint arXiv:2407.12283},
+  year={2024}
 }
 ```
 
