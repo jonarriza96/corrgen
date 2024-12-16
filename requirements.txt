@@ -1,8 +1,10 @@
 numpy
 matplotlib
 cvxpy==1.4.2
-proxsuite==0.6.3
-pydecomp==1.0.0
+proxsuite==0.6.2; sys_platform == 'darwin'
+proxsuite==0.6.3; sys_platform == 'linux'
+pydecomp==1.0.1
 pyny3d
 casadi
 pycddlib
+scipy

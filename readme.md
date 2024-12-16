@@ -21,11 +21,19 @@ If you use this framework please cite our work:
 
 ## Quickstart
 
-Install dependencies with
+Install dependencies the following:
 
-```
-sudo apt-get install libcdd-dev
-```
+* Linux:
+    ```
+        sudo apt-get install libcdd-dev libblas3 libblas-dev liblapack3 liblapack-dev gfortran
+    ```
+
+* Mac:
+    ```
+        brew install cddlib gmp eigen openblas cython boost
+    ```
+
+    *Note*: Remember to set `LDFLAGS` and `CPPFLAGS` to the correct paths for the libraries.
 
 Create a python environment with python 3.9. For example, with conda:
 
@@ -70,6 +78,16 @@ python examples/toy_example.py --lp --n_corrgen 6
 ```
 
 The options are the same as for the KITTI example (except for `--case`).
+
+### Corridor 2D
+
+To run a 2D corridor example (Fig. 4A in the paper), run this command:
+
+```bash
+python examples/corridor_2d.py
+```
+
+**Note**: This example is not properly integrated with the codebase, and therefore, its implementation is not as clean/efficient as the other examples.
 
 ### 2D cross section comparison
 
